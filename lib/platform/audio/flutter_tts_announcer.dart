@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 import 'package:audio_session/audio_session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:flutter_tts/flutter_tts.dart';
 
 import '../../core/clock/clock.dart';
@@ -20,7 +21,9 @@ import 'speech_announcer.dart';
 ///
 /// Interruptions (calls, alarms) suppress cues until they end; a headphone
 /// disconnect stops the current utterance so it does not continue on the
-/// phone speaker.
+/// phone speaker. iOS does not guarantee an "interruption ended" event, so
+/// returning to the app also clears the flag; otherwise one missed event would
+/// mute every later cue.
 class FlutterTtsAnnouncer implements SpeechAnnouncer {
   FlutterTtsAnnouncer(this._clock, {FlutterTts? tts})
     : _tts = tts ?? FlutterTts();
@@ -37,6 +40,7 @@ class FlutterTtsAnnouncer implements SpeechAnnouncer {
   bool _interrupted = false;
   Future<void> _queue = Future.value();
   final _subscriptions = <StreamSubscription<Object?>>[];
+  AppLifecycleListener? _lifecycle;
 
   @override
   SpeechStatus get status => _status;
@@ -74,6 +78,8 @@ class FlutterTtsAnnouncer implements SpeechAnnouncer {
     } on MissingPluginException {
       _status = SpeechStatus.unavailable;
     }
+
+    _lifecycle = AppLifecycleListener(onResume: () => _interrupted = false);
 
     try {
       final session = await AudioSession.instance;
@@ -158,6 +164,7 @@ class FlutterTtsAnnouncer implements SpeechAnnouncer {
   }
 
   void dispose() {
+    _lifecycle?.dispose();
     for (final s in _subscriptions) {
       unawaited(s.cancel());
     }

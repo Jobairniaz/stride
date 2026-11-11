@@ -16,6 +16,10 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		C0E5D1002F00000000A1B2C3 /* cue_walk.caf in Resources */ = {isa = PBXBuildFile; fileRef = C0E5D0002F00000000A1B2C3 /* cue_walk.caf */; };
+		C0E5D1012F00000000A1B2C3 /* cue_run.caf in Resources */ = {isa = PBXBuildFile; fileRef = C0E5D0012F00000000A1B2C3 /* cue_run.caf */; };
+		C0E5D1022F00000000A1B2C3 /* cue_rest.caf in Resources */ = {isa = PBXBuildFile; fileRef = C0E5D0022F00000000A1B2C3 /* cue_rest.caf */; };
+		C0E5D1032F00000000A1B2C3 /* cue_finish.caf in Resources */ = {isa = PBXBuildFile; fileRef = C0E5D0032F00000000A1B2C3 /* cue_finish.caf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +63,10 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C0E5D0002F00000000A1B2C3 /* cue_walk.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = cue_walk.caf; sourceTree = "<group>"; };
+		C0E5D0012F00000000A1B2C3 /* cue_run.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = cue_run.caf; sourceTree = "<group>"; };
+		C0E5D0022F00000000A1B2C3 /* cue_rest.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = cue_rest.caf; sourceTree = "<group>"; };
+		C0E5D0032F00000000A1B2C3 /* cue_finish.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = cue_finish.caf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +125,10 @@
 			children = (
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
+				C0E5D0002F00000000A1B2C3 /* cue_walk.caf */,
+				C0E5D0012F00000000A1B2C3 /* cue_run.caf */,
+				C0E5D0022F00000000A1B2C3 /* cue_rest.caf */,
+				C0E5D0032F00000000A1B2C3 /* cue_finish.caf */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
 				97C147021CF9000F007C117D /* Info.plist */,
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
@@ -228,6 +240,10 @@
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
+				C0E5D1002F00000000A1B2C3 /* cue_walk.caf in Resources */,
+				C0E5D1012F00000000A1B2C3 /* cue_run.caf in Resources */,
+				C0E5D1022F00000000A1B2C3 /* cue_rest.caf in Resources */,
+				C0E5D1032F00000000A1B2C3 /* cue_finish.caf in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

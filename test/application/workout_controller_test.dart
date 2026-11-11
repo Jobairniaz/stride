@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stride/app/providers.dart';
+import 'package:stride/features/settings/application/settings_controller.dart';
 import 'package:stride/features/workout/application/workout_controller.dart';
 import 'package:stride/features/workout/application/workout_state.dart';
 import 'package:stride/features/workout/domain/entities/workout_enums.dart';
 import 'package:stride/features/workout/domain/entities/workout_plan.dart';
 import 'package:stride/features/workout/domain/services/workout_engine.dart';
+import 'package:stride/platform/notifications/workout_notification_service.dart';
 import 'package:stride/platform/storage/app_database.dart';
 
 import '../helpers/test_harness.dart';
@@ -246,6 +248,12 @@ void main() {
       expect(cues.first.title, 'Start running');
       expect(cues.last.title, 'Workout completed');
       expect(cues.map((c) => c.id).toSet(), hasLength(4));
+      expect(cues.map((c) => c.sound), [
+        CueSound.run,
+        CueSound.walk,
+        CueSound.run,
+        CueSound.finish,
+      ]);
       ctrl().onForegrounded();
       await settle();
       expect(h.notifications.cancelCount, 1);
@@ -257,6 +265,52 @@ void main() {
       ctrl().onBackgrounded();
       await settle();
       expect(h.notifications.scheduled, isEmpty);
+    });
+
+    test('alive in background: notification speaks the phase change, '
+        'TTS does not repeat it', () async {
+      await boot();
+      ctrl().start();
+      ctrl().onBackgrounded();
+      await settle();
+      h.clock.advance(s(110));
+      ctrl().tick();
+      h.clock.advance(s(10));
+      ctrl().tick();
+      expect(state().active!.current.type, PhaseType.running);
+      expect(h.announcer.texts, ['Start walking', '10 seconds. Running next']);
+
+      // Back in the foreground, live TTS speaks phase changes again.
+      ctrl().onForegrounded();
+      h.clock.advance(state().active!.remainingAt(h.clock.now()));
+      ctrl().tick();
+      expect(h.announcer.texts.last, 'Start walking');
+    });
+
+    test('without notifications, TTS still speaks in background', () async {
+      await boot(Harness(notifications: FakeNotifications(granted: false)));
+      ctrl().start();
+      ctrl().onBackgrounded();
+      await settle();
+      h.clock.advance(s(120));
+      ctrl().tick();
+      expect(h.announcer.texts.last, 'Start running');
+    });
+
+    test('voice off: notifications use the default sound', () async {
+      await boot();
+      final repo = c.read(settingsRepositoryProvider);
+      await repo.save(repo.load().copyWith(voiceEnabled: false));
+      c
+        ..invalidate(settingsControllerProvider)
+        ..invalidate(workoutControllerProvider);
+      await settle();
+      ctrl().start();
+      ctrl().onBackgrounded();
+      await settle();
+      final cues = h.notifications.scheduled.single;
+      expect(cues, isNotEmpty);
+      expect(cues.map((c) => c.sound).toSet(), {null});
     });
   });
 

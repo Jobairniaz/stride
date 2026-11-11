@@ -1,3 +1,18 @@
+/// Spoken clip a phase-change notification plays as its sound, standing in
+/// for live TTS while the app is suspended. [resource] names the bundled file
+/// (Android `res/raw/<resource>.wav`, iOS `<resource>.caf`); keep in sync with
+/// tool/generate_cue_sounds.py.
+enum CueSound {
+  walk('cue_walk'),
+  run('cue_run'),
+  rest('cue_rest'),
+  finish('cue_finish');
+
+  const CueSound(this.resource);
+
+  final String resource;
+}
+
 /// A fallback alert for a future phase boundary, delivered by the OS even if
 /// the app is suspended. It is a reminder, not proof that app code ran.
 class ScheduledCue {
@@ -6,6 +21,7 @@ class ScheduledCue {
     required this.at,
     required this.title,
     required this.body,
+    this.sound,
   });
 
   /// Deterministic id so rescheduling replaces rather than duplicates.
@@ -13,6 +29,9 @@ class ScheduledCue {
   final DateTime at;
   final String title;
   final String body;
+
+  /// `null`: the platform's default notification sound (voice cues off).
+  final CueSound? sound;
 }
 
 class OngoingWorkoutInfo {

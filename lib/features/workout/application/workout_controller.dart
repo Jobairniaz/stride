@@ -45,6 +45,10 @@ class WorkoutController extends Notifier<WorkoutState> {
   final _spokenIds = <String>{};
   Future<void> _writes = Future.value();
   bool _inBackground = false;
+
+  /// Set while scheduled notifications are speaking the phase changes, so a
+  /// process that stays alive in the background does not say them twice.
+  bool _notificationsSpeakCues = false;
   bool _finishing = false;
 
   @override
@@ -218,6 +222,7 @@ class WorkoutController extends Notifier<WorkoutState> {
   void onForegrounded() {
     if (!_inBackground) return;
     _inBackground = false;
+    _notificationsSpeakCues = false;
     if (state.active == null) return;
     unawaited(_cancelNotifications());
     _tick();
@@ -264,7 +269,10 @@ class WorkoutController extends Notifier<WorkoutState> {
         snapshot: result.snapshot,
         preferences: settings.cuePreferences,
       );
-      cues.forEach(_speak);
+      for (final cue in cues) {
+        if (_notificationsSpeakCues && _spokenByNotification(cue)) continue;
+        _speak(cue);
+      }
     }
 
     final transitioned = result.transitions.isNotEmpty;
@@ -345,6 +353,9 @@ class WorkoutController extends Notifier<WorkoutState> {
     }
   }
 
+  static bool _spokenByNotification(Announcement cue) =>
+      cue.kind == CueKind.phaseStart || cue.kind == CueKind.workoutComplete;
+
   void _speak(Announcement announcement) {
     if (!_spokenIds.add(announcement.id)) return;
     // Never awaited: timing must not depend on speech. The announcer
@@ -416,6 +427,7 @@ class WorkoutController extends Notifier<WorkoutState> {
     await service.showOngoing(_ongoingInfo(s, now));
     final upcoming = _engine.projectUpcoming(s, limit: maxScheduledCues);
     final rounds = s.plan.targetRounds;
+    final voice = ref.read(settingsControllerProvider).voiceEnabled;
     await service.scheduleCues([
       for (final (i, u) in upcoming.indexed)
         ScheduledCue(
@@ -428,8 +440,18 @@ class WorkoutController extends Notifier<WorkoutState> {
               ? 'Open Stride to see your summary.'
               : '${formatDurationLabel(u.to!.plannedDuration)} · Round '
                     '${u.round}${rounds == null ? '' : ' of $rounds'}',
+          sound: !voice
+              ? null
+              : switch (u.to?.type) {
+                  null => CueSound.finish,
+                  PhaseType.walking => CueSound.walk,
+                  PhaseType.running => CueSound.run,
+                  PhaseType.rest => CueSound.rest,
+                },
         ),
     ]);
+    // Still hidden: the scheduled notifications now speak phase changes.
+    _notificationsSpeakCues = voice && _inBackground && upcoming.isNotEmpty;
   }
 
   Future<void> _cancelNotifications() =>
